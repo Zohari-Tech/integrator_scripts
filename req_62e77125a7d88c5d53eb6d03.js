@@ -1,4 +1,4 @@
-const ACCOUNT_NUMBER_SIZE = 12;
+const ACCOUNT_NUMBER_SIZE = 9;
 
 const main = (payload, headers, constants, client) => {
   const {
@@ -23,6 +23,7 @@ const main = (payload, headers, constants, client) => {
 
   // validate the account number as a mobile number
   const mobileNumber = accountNumber.replace(/\D/g, "").substring(3);
+  log(mobileNumber);
 
   if (mobileNumber.length !== ACCOUNT_NUMBER_SIZE) {
     return {
@@ -31,8 +32,8 @@ const main = (payload, headers, constants, client) => {
       error: "Invalid Account number, Should be +254-{9digits}",
     };
   }
-  //
-  // const timestamp =
+  // NOTE: Getting the current timestamp
+  const now = new Date();
   const year = now.getFullYear().toString();
   const month = pad(now.getMonth() + 1);
   const date = pad(now.getDate());
@@ -72,4 +73,8 @@ const main = (payload, headers, constants, client) => {
     headers: headers,
     error: "",
   };
+};
+
+const pad = (n) => {
+  return n < 10 ? "0" + n : n;
 };
