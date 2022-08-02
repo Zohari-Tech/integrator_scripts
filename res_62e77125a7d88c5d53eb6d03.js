@@ -6,7 +6,7 @@ const main = (payload) => {
     transactionId: TransactionID,
     statusId: Result,
     date: new Date().toISOString(),
-    statusCode: 0,
+    statusCode: "0",
     statusDescription: Description,
     metadata: {},
   };

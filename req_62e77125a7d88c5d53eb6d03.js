@@ -23,7 +23,6 @@ const main = (payload, headers, constants, client) => {
 
   // validate the account number as a mobile number
   const mobileNumber = accountNumber.replace(/\D/g, "").substring(3);
-  log(mobileNumber);
 
   if (mobileNumber.length !== ACCOUNT_NUMBER_SIZE) {
     return {
@@ -46,21 +45,17 @@ const main = (payload, headers, constants, client) => {
     year + "-" + month + "-" + date + "T" + hrs + ":" + mins + ":" + sec + "Z";
 
   // utf8 encode then base64
-  const nonce = btoa(encodeURI(noncetime));
+  const nonce = btoa(noncetime);
 
   const rawStr = nonce + timespan + constants.AppSecret;
 
-  const rawStrEncode = btoa(rawStr);
-
-  const sha256str = SHA256(rawStrEncode);
-
-  const sha256strBase64 = btoa(sha256str);
+  const sha256str = SHA256(rawStr);
 
   // Headers setup
   headers["Authorization"] = ['WSSE realm="DOP", profile="UsernameToken"'];
   headers["X-RequestHeader"] = [`request TransId="${transactionId}"`];
   headers["X-WSSE"] = [
-    `UsernameToken Username="${constants.AppKey}", PasswordDigest="${sha256strBase64}", Nonce="${nonce}", Created="${timespan}"`,
+    `UsernameToken Username="${constants.AppKey}", PasswordDigest="${sha256str}", Nonce="${nonce}", Created="${timespan}"`,
   ];
 
   // Build the headers
@@ -68,6 +63,8 @@ const main = (payload, headers, constants, client) => {
     ProductID: ProductID,
     MSISDN: mobileNumber,
   };
+
+  log(JSON.stringify(request));
   return {
     requeststring: JSON.stringify(request),
     headers: headers,
