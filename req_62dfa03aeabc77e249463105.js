@@ -31,7 +31,7 @@ const main = (payload, headers, constants, client) => {
   // NOTE: Return token error
   if (!response) {
     return {
-      requeststring: "",
+      payload: "",
       headers: headers,
       error: "Empty response",
     };
@@ -76,7 +76,7 @@ const main = (payload, headers, constants, client) => {
   headers["Authorization"] = ["Bearer " + access_token];
 
   return {
-    requeststring: JSON.stringify(request_obj),
+    payload: JSON.stringify(request_obj),
     headers: headers,
     error: "",
   };

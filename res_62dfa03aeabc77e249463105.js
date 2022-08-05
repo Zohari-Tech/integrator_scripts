@@ -13,6 +13,5 @@ const main = (payload) => {
     date: new Date().toISOString(),
     statusCode: ResponseCode,
     statusDescription: ResponseDescription,
-    metadata: {},
   };
 };
