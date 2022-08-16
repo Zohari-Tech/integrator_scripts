@@ -17,15 +17,15 @@ const FinalCallback = (payload) => {
     },
   } = payload;
 
-  if (ResultCode === "0") {
-    finalstatus = "TRX204";
-  } else {
-    finalstatus = "TRX400";
+  let finalstatus = "TRX400";
+  if (ResultCode == "0") {
+    finalstatus = "TRX200";
   }
-  const Code = searchTrx("TPCode", `${MerchantRequestID}|${CheckoutRequestID}`);
+  const Code = searchTrx("TPCODE", `${MerchantRequestID}`);
+  log(Code);
 
   return {
-    TPCode: `${MerchantRequestID}|${CheckoutRequestID}`, // Code recieved from payment processor
+    TPCode: `${MerchantRequestID}`, // Code recieved from payment processor
     Code: Code, // Tracking code for internal perposes
     RecievedDate: new Date().toISOString(), // Date response received
     StatusCode: finalstatus, // Final status code as know by our system
@@ -49,7 +49,7 @@ const AcknowledgementStatus = (payload) => {
   }
 
   return {
-    TPCode: `${MerchantRequestID}|${CheckoutRequestID}`, // Code recieved from payment processor
+    TPCode: `${MerchantRequestID}`, // Code recieved from payment processor
     Code: "", // Tracking code for internal perposes
     RecievedDate: new Date().toISOString(), // Date response received
     StatusCode: finalstatus, // Final status code as know by our system

@@ -2,7 +2,7 @@ const main = (payload, headers, constants, client) => {
   const {
     MSISDN,
     accountNumber,
-    transactionId,
+    Code,
     amount,
     currentDate,
     narration,

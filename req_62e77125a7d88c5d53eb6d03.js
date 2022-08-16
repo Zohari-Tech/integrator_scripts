@@ -4,13 +4,14 @@ const main = (payload, headers, constants, client) => {
   const {
     MSISDN,
     accountNumber,
-    transactionId,
+    externalCode,
     amount,
     currentDate,
     narration,
     ISOCurrencyCode,
     customerName,
     paymentMode,
+    Code,
     callback,
     metadata,
   } = payload;
@@ -26,7 +27,7 @@ const main = (payload, headers, constants, client) => {
 
   if (mobileNumber.length !== ACCOUNT_NUMBER_SIZE) {
     return {
-      requeststring: "",
+      payload: "",
       headers: headers,
       error: "Invalid Account number, Should be +254-{9digits}",
     };
@@ -53,7 +54,7 @@ const main = (payload, headers, constants, client) => {
 
   // Headers setup
   headers["Authorization"] = ['WSSE realm="DOP", profile="UsernameToken"'];
-  headers["X-RequestHeader"] = [`request TransId="${transactionId}"`];
+  headers["X-RequestHeader"] = [`request TransId="${Code}"`];
   headers["X-WSSE"] = [
     `UsernameToken Username="${constants.AppKey}", PasswordDigest="${sha256str}", Nonce="${nonce}", Created="${timespan}"`,
   ];
@@ -66,7 +67,7 @@ const main = (payload, headers, constants, client) => {
 
   log(JSON.stringify(request));
   return {
-    requeststring: JSON.stringify(request),
+    payload: JSON.stringify(request),
     headers: headers,
     error: "",
   };
