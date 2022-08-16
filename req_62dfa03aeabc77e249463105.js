@@ -68,7 +68,7 @@ const main = (payload, headers, constants, client) => {
     PartyB: constants.BusinessShortCode,
     PhoneNumber: accountNumber,
     CallBackURL: constants.Callback,
-    AccountReference: "CompanyXLTD",
+    AccountReference: "Roamtech",
     TransactionDesc: narration,
   };
 
