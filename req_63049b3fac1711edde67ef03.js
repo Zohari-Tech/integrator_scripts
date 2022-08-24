@@ -7,6 +7,7 @@ const main = (payload, headers, constants, client, url) => {
     currentDate,
     narration,
     ISOCurrencyCode,
+    externalCode,
     customerName,
     paymentMode,
     callback,
@@ -65,6 +66,6 @@ const main = (payload, headers, constants, client, url) => {
   return {
     payload: JSON.stringify(built_request),
     headers: headers,
-    url: `${url + Code}`,
+    url: `${url + Code}.${externalCode}`,
   };
 };
