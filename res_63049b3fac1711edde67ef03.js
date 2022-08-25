@@ -16,83 +16,83 @@ const main = (payload, constants) => {
 
   let finalstatus = "TR400";
 
-  const combinedState = `${info.state}.${state}`;
-
   // NOTE: To handle payload validation error that get back from the api
   if (!payload.hasOwnProperty("state")) {
-    return result("", "", "", "failed.create", {});
-  } else if (state === "transfer.confirm") {
+    return result("", "", "TRX500", "failed.create", {});
+  } else if (payload.state === "transfer.confirm") {
     // NOTE: Handle confirm payment
-    return confirmTransfer(code, constants);
+    return confirmTransfer(payload.code, constants);
   }
+
+  const combinedState = `${state}.${info.state}`;
 
   // NOTE: Handle the callback events
   switch (combinedState) {
     case "new.unconfirmed":
-      finalstatus - "TRX204";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX204";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
 
     case "new.confirmed":
       //NOTE: Do not process the sync response as its callback should come through
-      finalstatus - "TRX204";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX204";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "payout.pending":
-      finalstatus - "TRX200";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX200";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "payout.paid":
-      finalstatus - "TRX200";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX200";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "cancelled.cancelled":
-      finalstatus - "TRX400";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX400";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "payout.pending":
-      finalstatus - "TRX200";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX200";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "sent.sent":
-      finalstatus - "TRX200";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX200";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "held.pending":
-      finalstatus - "TRX204";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX204";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "finished.paid":
-      finalstatus - "TRX200";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX200";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     case "review.reviewing":
-      finalstatus - "TRX204";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX204";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
     default:
-      finalstatus - "TRX500";
-      return result(info.Code, reference, finalstatus, combinedState, {
+      finalstatus = "TRX500";
+      return result(info.code, reference, finalstatus, combinedState, {
         fee: fees,
         rate: rate,
       });
@@ -100,9 +100,14 @@ const main = (payload, constants) => {
 };
 
 const result = (TPCode, reference, statusCode, combinedState, metadata) => {
+  const codes = reference.split("|");
+  metadata["TransactionID"] = codes[0];
+
+  //NOTE: if the split dint happen in 2 use the normal tp recieved
+  const finalcode = codes.length === 2 ? codes[1] : reference;
   return {
     TPCode: TPCode, // Code recieved from payment processor
-    Code: reference, // Tracking code for internal perposes
+    Code: finalcode, // Tracking code for internal perposes
     RecievedDate: new Date().toISOString(), // Date response received
     StatusCode: statusCode, // Final status code as know by our system
     StatusDescription: combinedState, // Status Description as received from processor
@@ -111,19 +116,46 @@ const result = (TPCode, reference, statusCode, combinedState, metadata) => {
 };
 
 const confirmTransfer = (code, constants) => {
-  // TODO: Search for the transfer
-  // Get the transd
-
   const header = {
     Authorization: [
-      `Basic ${btoa(constants.USERNAME + ":" + constants.PASSWORD)}`,
+      `Basic ${btoa(constants.username + ":" + constants.password)}`,
     ],
   };
 
   const response = send(
     "",
-    `${constants.CONF_URL + code}`,
+    `${constants.CONFIRM_URL + code}/confirm`,
     JSON.stringify(header),
-    "GET"
+    constants.CONFIRM_HTTP_METHOD
   );
+
+  if (!response.hasOwnProperty("state")) {
+    return result(
+      "",
+      code,
+      "TRX400",
+      "failed.confirmation",
+      JSON.parse(response)
+    );
+  } else if (`${response.state}.${response.info.state}` === "new.confirmed") {
+    // Failed to confirm
+    return result(
+      response.info.code,
+      response.reference,
+      "TRX204",
+      `${response.state}.${response.info.state}`,
+      {
+        fee: response.fees,
+        rate: response.rate,
+      }
+    );
+  } else {
+    return result(
+      response.info.code,
+      response.reference,
+      "TRX400",
+      `${response.state}.${response.info.state}`,
+      response.info
+    );
+  }
 };

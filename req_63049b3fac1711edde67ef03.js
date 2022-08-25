@@ -66,6 +66,6 @@ const main = (payload, headers, constants, client, url) => {
   return {
     payload: JSON.stringify(built_request),
     headers: headers,
-    url: `${url + Code}.${externalCode}`,
+    url: `${url + Code}|${externalCode}`,
   };
 };
