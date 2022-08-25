@@ -16,15 +16,22 @@ const main = (payload, constants) => {
 
   let finalstatus = "TR400";
 
+  // NOTE: Usefull in cancel, confirm and get transfer requests
+  const header = {
+    Authorization: [
+      `Basic ${btoa(constants.username + ":" + constants.password)}`,
+    ],
+  };
+
   // NOTE: To handle payload validation error that get back from the api
   if (!payload.hasOwnProperty("state")) {
     return result("", "", "TRX500", "failed.create", {});
-  } else if (payload.state === "transfer.confirm") {
-    // NOTE: Handle confirm payment
-    return confirmTransfer(payload.code, constants);
   }
 
-  const combinedState = `${state}.${info.state}`;
+  // NOTE: Check if single state or not if single state client is Initiating client else processing client
+  const combinedState = payload.hasOwnProperty("info")
+    ? `${state}.${info.state}`
+    : state;
 
   // NOTE: Handle the callback events
   switch (combinedState) {
@@ -90,6 +97,18 @@ const main = (payload, constants) => {
         fee: fees,
         rate: rate,
       });
+    // All statuses that have tranfer.* are based on
+    // NOTE: initiator client
+    // the rest are based on processor client
+    case "transfer.confirm":
+      const confirm_url = `${constants.BASE_URL + payload.code}/confirm`;
+      return confirmStatusProcess(confirm_url, header, "POST");
+    case "transfer.query":
+      const query_url = constants.BASE_URL + payload.code;
+      return confirmStatusProcess(query_url, header, "GET");
+    case "transfer.cancel":
+      const cancel_url = `${constants.BASE_URL + payload.code}/cancel`;
+      return confirmStatusProcess(cancel_url, header, "POST");
     default:
       finalstatus = "TRX500";
       return result(info.code, reference, finalstatus, combinedState, {
@@ -100,14 +119,9 @@ const main = (payload, constants) => {
 };
 
 const result = (TPCode, reference, statusCode, combinedState, metadata) => {
-  const codes = reference.split("|");
-  metadata["TransactionID"] = codes[0];
-
-  //NOTE: if the split dint happen in 2 use the normal tp recieved
-  const finalcode = codes.length === 2 ? codes[1] : reference;
   return {
     TPCode: TPCode, // Code recieved from payment processor
-    Code: finalcode, // Tracking code for internal perposes
+    Code: reference, // Tracking code for internal perposes
     RecievedDate: new Date().toISOString(), // Date response received
     StatusCode: statusCode, // Final status code as know by our system
     StatusDescription: combinedState, // Status Description as received from processor
@@ -115,30 +129,12 @@ const result = (TPCode, reference, statusCode, combinedState, metadata) => {
   };
 };
 
-const confirmTransfer = (code, constants) => {
-  const header = {
-    Authorization: [
-      `Basic ${btoa(constants.username + ":" + constants.password)}`,
-    ],
-  };
-
-  const response = send(
-    "",
-    `${constants.CONFIRM_URL + code}/confirm`,
-    JSON.stringify(header),
-    constants.CONFIRM_HTTP_METHOD
-  );
-
+// NOTE: Handle all initiator client requests to processor
+const confirmStatusProcess = (url, header, method) => {
+  const response = JSON.parse(send("", url, JSON.stringify(header), method));
   if (!response.hasOwnProperty("state")) {
-    return result(
-      "",
-      code,
-      "TRX400",
-      "failed.confirmation",
-      JSON.parse(response)
-    );
+    return result("", code, "TRX400", "failed.statecheck", response);
   } else if (`${response.state}.${response.info.state}` === "new.confirmed") {
-    // Failed to confirm
     return result(
       response.info.code,
       response.reference,
