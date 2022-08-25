@@ -1,4 +1,4 @@
-const main = (payload) => {
+const main = (payload, constants) => {
   if (payload.hasOwnProperty("Body")) {
     return FinalCallback(payload);
   }

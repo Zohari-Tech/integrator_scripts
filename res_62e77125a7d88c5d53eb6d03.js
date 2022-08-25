@@ -1,4 +1,4 @@
-const main = (payload) => {
+const main = (payload, constants) => {
   const { Result, Description, TransactionID } = payload;
 
   //TODO: Do your transformation for response here

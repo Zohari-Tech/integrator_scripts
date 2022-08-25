@@ -1,4 +1,4 @@
-const main = (payload) => {
+const main = (payload, constants) => {
   const {
     created,
     destination,
@@ -23,7 +23,7 @@ const main = (payload) => {
     return result("", "", "", "failed.create", {});
   } else if (state === "transfer.confirm") {
     // NOTE: Handle confirm payment
-    return confirmTransfer(code, payload.constants);
+    return confirmTransfer(code, constants);
   }
 
   // NOTE: Handle the callback events
@@ -109,7 +109,6 @@ const result = (TPCode, reference, statusCode, combinedState, metadata) => {
     metadata: metadata, // extra data about the request
   };
 };
-
 
 const confirmTransfer = (code, constants) => {
   // TODO: Search for the transfer
