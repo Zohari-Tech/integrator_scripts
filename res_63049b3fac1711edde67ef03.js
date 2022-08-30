@@ -134,7 +134,10 @@ const confirmStatusProcess = (url, header, method) => {
   const response = JSON.parse(send("", url, JSON.stringify(header), method));
   if (!response.hasOwnProperty("state")) {
     return result("", code, "TRX400", "failed.statecheck", response);
-  } else if (`${response.state}.${response.info.state}` === "new.confirmed") {
+  } else if (
+    `${response.state}.${response.info.state}` === "new.confirmed" ||
+    `${response.state}.${response.info.state}` === "new.unconfirmed"
+  ) {
     return result(
       response.info.code,
       response.reference,
@@ -144,6 +147,14 @@ const confirmStatusProcess = (url, header, method) => {
         fee: response.fees,
         rate: response.rate,
       }
+    );
+  } else if (`${response.state}.${response.info.state}` === "payout.pending") {
+    return result(
+      response.info.code,
+      response.reference,
+      "TRX200",
+      `${response.state}.${response.info.state}`,
+      response.info
     );
   } else {
     return result(
