@@ -36,6 +36,8 @@ const main = (payload, headers, constants, client, url) => {
     },
   } = payload;
 
+  log(payload);
+
   // Authorization setup in header
   headers["Authorization"] = [
     `Basic ${btoa(constants.username + ":" + constants.password)}`,
@@ -43,13 +45,13 @@ const main = (payload, headers, constants, client, url) => {
 
   const [firstname, lastname] = customerName.split(" ");
   const built_request = {
-    destination_amount: {
+    source_amount: {
       currency: ISOCurrencyCode,
       units: amount,
     },
     source: {
       type: "partner",
-      country: "JPN",
+      country: "KEN",
       segment: "individual",
       legal_name_first: firstname,
       mobile_number: MSISDN,

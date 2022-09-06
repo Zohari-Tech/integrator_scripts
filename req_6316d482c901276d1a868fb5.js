@@ -37,7 +37,7 @@ const main = (payload, headers, constants, client, url) => {
     `Basic ${btoa(constants.username + ":" + constants.password)}`,
   ];
 
-  const tmp = {
+  const built_request = {
     source_amount: {
       currency: ISOCurrencyCode,
       units: amount,
