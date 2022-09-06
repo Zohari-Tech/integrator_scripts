@@ -23,6 +23,7 @@ const main = (payload, headers, constants, client, url) => {
       destination: {
         dest_company_name,
         dest_bank,
+        dest_branch,
         dest_address_line,
         dest_address_city,
       },
@@ -36,7 +37,7 @@ const main = (payload, headers, constants, client, url) => {
   ];
 
   const built_request = {
-    destination_amount: {
+    source_amount: {
       currency: ISOCurrencyCode,
       units: amount,
     },
@@ -58,7 +59,7 @@ const main = (payload, headers, constants, client, url) => {
       segment: "business",
       country: "IND",
       company_name: dest_company_name,
-      mobile_number: dest_company_name,
+      branch: dest_branch,
       account_number: accountNumber,
       bank: dest_bank,
       address_line: dest_address_line,
