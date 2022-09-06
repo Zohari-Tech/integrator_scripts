@@ -13,13 +13,21 @@ const main = (payload, headers, constants, client, url) => {
     callback,
     metadata: {
       source: {
+        s_company_trading_name,
         co_reg_no,
         co_reg_country,
         s_address_line,
         s_address_city,
         s_address_country,
       },
-      destination: { address_line, swift_code, company_name },
+      destination: {
+        company_name,
+        dest_address_zip,
+        dest_address_line,
+        dest_address_city,
+        dest_bank,
+        dest_branch,
+      },
       compliance: { source_of_funds, remittance_purpose },
     },
   } = payload;
@@ -29,37 +37,39 @@ const main = (payload, headers, constants, client, url) => {
     `Basic ${btoa(constants.username + ":" + constants.password)}`,
   ];
 
-  const built_request = {
+  const tmp = {
+    source_amount: {
+      currency: ISOCurrencyCode,
+      units: amount,
+    },
     source: {
       type: "partner",
       country: "KEN",
       segment: "business",
+      mobile_number: MSISDN,
       company_name: customerName,
-      company_trading_name: customerName,
+      company_trading_name: s_company_trading_name,
       company_registration_number: co_reg_no,
       company_registration_country: co_reg_country,
       address_line: s_address_line,
       address_city: s_address_city,
       address_country: s_address_country,
-      mobile_number: MSISDN,
     },
     destination: {
       type: "bank_account",
-      country: "CHN",
-      currency: "CNH",
+      country: "JPN",
       segment: "business",
-      swift_code: swift_code,
-      account_number: accountNumber,
-      address_line: address_line,
       company_name: company_name,
+      bank: dest_bank,
+      branch: dest_branch,
+      account_number: accountNumber,
+      address_line: dest_address_line,
+      address_city: dest_address_city,
+      address_zip: dest_address_zip,
     },
     compliance: {
       source_of_funds: source_of_funds,
       remittance_purpose: remittance_purpose,
-    },
-    source_amount: {
-      currency: "USD",
-      units: amount,
     },
   };
 

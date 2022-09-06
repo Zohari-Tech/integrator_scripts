@@ -13,16 +13,25 @@ const main = (payload, headers, constants, client, url) => {
     callback,
     metadata: {
       source: {
-        co_reg_no,
-        co_reg_country,
+        date_of_birth,
+        nationality,
+        s_id_number,
+        s_id_type,
+        s_id_country,
         s_address_line,
         s_address_city,
         s_address_country,
       },
-      destination: { address_line, swift_code, company_name },
-      compliance: { source_of_funds, remittance_purpose },
+      destination: {
+        dest_legal_name_first,
+        dest_legal_name_last,
+        dest_mobile_number,
+      },
+      compliance: { remittance_purpose },
     },
   } = payload;
+
+  const [firstname, lastname] = customerName.split(" ");
 
   // Authorization setup in header
   headers["Authorization"] = [
@@ -30,36 +39,36 @@ const main = (payload, headers, constants, client, url) => {
   ];
 
   const built_request = {
+    source_amount: {
+      currency: ISOCurrencyCode,
+      units: amount,
+    },
     source: {
       type: "partner",
       country: "KEN",
-      segment: "business",
-      company_name: customerName,
-      company_trading_name: customerName,
-      company_registration_number: co_reg_no,
-      company_registration_country: co_reg_country,
-      address_line: s_address_line,
+      segment: "individual",
+      legal_name_first: firstname,
+      legal_name_last: lastname,
+      date_of_birth: date_of_birth,
+      nationality: nationality,
       address_city: s_address_city,
+      address_line: s_address_line,
       address_country: s_address_country,
       mobile_number: MSISDN,
+      id_number: s_id_number,
+      id_type: s_id_type,
+      id_country: s_id_country,
     },
     destination: {
       type: "bank_account",
       country: "CHN",
-      currency: "CNH",
-      segment: "business",
-      swift_code: swift_code,
+      legal_name_first: dest_legal_name_first,
+      legal_name_last: dest_legal_name_last,
+      mobile_number: dest_mobile_number,
       account_number: accountNumber,
-      address_line: address_line,
-      company_name: company_name,
     },
     compliance: {
-      source_of_funds: source_of_funds,
       remittance_purpose: remittance_purpose,
-    },
-    source_amount: {
-      currency: "USD",
-      units: amount,
     },
   };
 

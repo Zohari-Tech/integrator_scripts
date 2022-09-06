@@ -1,6 +1,6 @@
 const ACCOUNT_NUMBER_SIZE = 9;
 
-const main = (payload, headers, constants, client) => {
+const main = (payload, headers, constants, client, url) => {
   const {
     MSISDN,
     accountNumber,
@@ -69,6 +69,7 @@ const main = (payload, headers, constants, client) => {
   return {
     payload: JSON.stringify(request),
     headers: headers,
+    url: url,
     error: "",
   };
 };

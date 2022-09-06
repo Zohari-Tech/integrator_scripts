@@ -13,14 +13,17 @@ const main = (payload, headers, constants, client, url) => {
     callback,
     metadata: {
       source: {
-        co_reg_no,
-        co_reg_country,
+        date_of_birth,
+        nationality,
+        s_id_number,
+        s_id_type,
+        s_id_country,
         s_address_line,
         s_address_city,
         s_address_country,
       },
-      destination: { address_line, swift_code, company_name },
-      compliance: { source_of_funds, remittance_purpose },
+      destination: { dest_legal_name_first, dest_legal_name_last },
+      compliance: { remittance_purpose },
     },
   } = payload;
 
@@ -29,37 +32,38 @@ const main = (payload, headers, constants, client, url) => {
     `Basic ${btoa(constants.username + ":" + constants.password)}`,
   ];
 
+  const [firstname, lastname] = customerName.split(" ");
+
   const built_request = {
+    source_amount: {
+      currency: ISOCurrencyCode,
+      units: amount,
+    },
     source: {
       type: "partner",
       country: "KEN",
-      segment: "business",
-      company_name: customerName,
-      company_trading_name: customerName,
-      company_registration_number: co_reg_no,
-      company_registration_country: co_reg_country,
+      segment: "individual",
+      legal_name_first: firstname,
+      legal_name_last: lastname,
+      date_of_birth: date_of_birth,
+      nationality: nationality,
+      id_type: s_id_type,
+      id_country: s_id_country,
+      id_number: s_id_number,
       address_line: s_address_line,
-      address_city: s_address_city,
       address_country: s_address_country,
-      mobile_number: MSISDN,
     },
     destination: {
-      type: "bank_account",
+      type: "ewallet",
+      partner: "emq_partner_alipay",
       country: "CHN",
-      currency: "CNH",
-      segment: "business",
-      swift_code: swift_code,
-      account_number: accountNumber,
-      address_line: address_line,
-      company_name: company_name,
+      segment: "individual",
+      legal_name_first: dest_legal_name_first,
+      legal_name_last: dest_legal_name_last,
+      ewallet_id: accountNumber,
     },
     compliance: {
-      source_of_funds: source_of_funds,
       remittance_purpose: remittance_purpose,
-    },
-    source_amount: {
-      currency: "USD",
-      units: amount,
     },
   };
 

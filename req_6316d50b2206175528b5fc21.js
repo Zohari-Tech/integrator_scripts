@@ -13,13 +13,23 @@ const main = (payload, headers, constants, client, url) => {
     callback,
     metadata: {
       source: {
-        co_reg_no,
-        co_reg_country,
+        date_of_birth,
+        nationality,
+        s_id_number,
+        s_id_type,
+        s_id_country,
         s_address_line,
         s_address_city,
         s_address_country,
       },
-      destination: { address_line, swift_code, company_name },
+      destination: {
+        dest_legal_name_first,
+        dest_legal_name_last,
+        dest_mobile_number,
+        dest_bank,
+        dest_address_line,
+        dest_address_city,
+      },
       compliance: { source_of_funds, remittance_purpose },
     },
   } = payload;
@@ -29,37 +39,41 @@ const main = (payload, headers, constants, client, url) => {
     `Basic ${btoa(constants.username + ":" + constants.password)}`,
   ];
 
+  const [firstname, lastname] = customerName.split(" ");
+
   const built_request = {
+    source_amount: {
+      currency: ISOCurrencyCode,
+      units: amount,
+    },
     source: {
       type: "partner",
       country: "KEN",
-      segment: "business",
-      company_name: customerName,
-      company_trading_name: customerName,
-      company_registration_number: co_reg_no,
-      company_registration_country: co_reg_country,
-      address_line: s_address_line,
+      segment: "individual",
+      legal_name_first: firstname,
+      legal_name_last: lastname,
+      date_of_birth: date_of_birth,
+      nationality: nationality,
+      id_type: s_id_type,
+      id_country: s_id_country,
+      id_number: s_id_number,
       address_city: s_address_city,
-      address_country: s_address_country,
-      mobile_number: MSISDN,
+      address_line: s_address_line,
     },
     destination: {
       type: "bank_account",
-      country: "CHN",
-      currency: "CNH",
-      segment: "business",
-      swift_code: swift_code,
+      country: "IND",
+      legal_name_first: dest_legal_name_first,
+      legal_name_last: dest_legal_name_last,
+      mobile_number: dest_mobile_number,
+      bank: dest_bank,
       account_number: accountNumber,
-      address_line: address_line,
-      company_name: company_name,
+      address_line: dest_address_line,
+      address_city: dest_address_city,
     },
     compliance: {
       source_of_funds: source_of_funds,
       remittance_purpose: remittance_purpose,
-    },
-    source_amount: {
-      currency: "USD",
-      units: amount,
     },
   };
 
