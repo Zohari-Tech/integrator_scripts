@@ -1,16 +1,9 @@
 const main = (payload, headers, constants, client, url) => {
   const {
-    MSISDN,
     accountNumber,
-    Code,
     amount,
-    currentDate,
+
     narration,
-    ISOCurrencyCode,
-    customerName,
-    paymentMode,
-    callback,
-    metadata,
   } = payload;
 
   const header = {
@@ -25,8 +18,8 @@ const main = (payload, headers, constants, client, url) => {
 
   const response = send("", constants.TOKEN_URL, JSON.stringify(header), "GET");
 
-  // FIXME: Authorized caching within the system
-  const { access_token, expires_in } = JSON.parse(response);
+  // TODO: Authorized caching within the system
+  const { access_token } = JSON.parse(response);
 
   // NOTE: Return token error
   if (!response) {

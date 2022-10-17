@@ -10,7 +10,7 @@ const FinalCallback = (payload) => {
     Body: {
       stkCallback: {
         MerchantRequestID,
-        CheckoutRequestID,
+
         ResultCode,
         ResultDesc,
       },
@@ -34,13 +34,7 @@ const FinalCallback = (payload) => {
 };
 
 const AcknowledgementStatus = (payload) => {
-  const {
-    MerchantRequestID,
-    CheckoutRequestID,
-    ResponseCode,
-    ResponseDescription,
-    CustomerMessage,
-  } = payload;
+  const { MerchantRequestID, ResponseCode, ResponseDescription } = payload;
 
   let finalstatus = "TRX400";
 
